@@ -1,17 +1,20 @@
-from seleniumwire import webdriver
+import json
+import logging
+import os
+import queue
+import re
+import threading
+import time
+import unicodedata
+from datetime import datetime
+
+import requests
+import yaml
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from seleniumwire import webdriver
 from seleniumwire.utils import decode
-import requests
-import json
-from datetime import datetime
-import yaml
-import re
-import os
-import threading
-import queue
-import unicodedata
-import logging
+from tqdm import tqdm
 
 # 工作目录
 if not os.path.exists("downloads"):
@@ -40,6 +43,7 @@ def wait_load_complete(driver):
 
 chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--incognito")
+chrome_options.add_argument("--log-level=3")
 
 
 driver = webdriver.Chrome(chrome_options=chrome_options)
@@ -77,7 +81,7 @@ with open(os.path.join(work_dir, "web_response.json"), "w", encoding="utf-8") as
     f.write(web_response)
 
 
-# 下载队列和多线程下载
+# 多线程图片下载队列
 
 THREAD_NUM = 4
 image_queue = queue.Queue()
@@ -91,6 +95,7 @@ def downloader():
 
     while True:
         task = image_queue.get()
+        time.sleep(0.1)
         if task is None:
             image_queue.task_done()
             break
@@ -103,12 +108,6 @@ def downloader():
         logger.debug("OK  " + url + filepath)
         logger.debug("QUEUE SIZE " + str(image_queue.qsize()))
         image_queue.task_done()
-
-
-for _ in range(THREAD_NUM):
-    t = threading.Thread(target=downloader)
-    t.start()
-    thread_list.append(t)
 
 
 # 验证文件名
@@ -192,11 +191,29 @@ for note_item in note_list:
         f.write(str(yaml.dump(note_item, allow_unicode=True)))  # 写入元数据
         f.write("---\n")
         f.write("\n")
-        f.write(re.sub(IMAGE_PATTERN, image_tag_handler, content))  # 写入替换图片标签后的正文
+        f.write(
+            re.sub(IMAGE_PATTERN, image_tag_handler, content)
+        )  # 写入替换图片标签后的正文
 
 # image_tag_handler()已将图片下载链接入队完毕。添加downloader结束信号。
 for _ in range(THREAD_NUM):
     image_queue.put(None)
+
+# 创建下载线程
+for _ in range(THREAD_NUM):
+    t = threading.Thread(target=downloader)
+    t.start()
+    thread_list.append(t)
+
+# 使用tqdm监控队列长度
+print("开始下载图片")
+with tqdm(total=image_queue.qsize()) as pbar:
+    initial_size = image_queue.qsize()
+    while any([t.is_alive() for t in thread_list]):
+        current_size = image_queue.qsize()
+        pbar.update(initial_size - current_size)
+        initial_size = current_size
+        time.sleep(0.1)  # 每0.1秒刷新一次
 
 # 等待线程结束
 for t in thread_list:
