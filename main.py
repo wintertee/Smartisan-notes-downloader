@@ -5,11 +5,11 @@ import queue
 import re
 import threading
 import time
-import unicodedata
 from datetime import datetime
 
 import requests
 import yaml
+from pathvalidate import sanitize_filename
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from seleniumwire import webdriver
@@ -110,28 +110,6 @@ def downloader():
         image_queue.task_done()
 
 
-# 验证文件名
-def slugify(value, allow_unicode=False):
-    """
-    Taken from https://github.com/django/django/blob/master/django/utils/text.py
-    Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
-    dashes to single dashes. Remove characters that aren't alphanumerics,
-    underscores, or hyphens. Convert to lowercase. Also strip leading and
-    trailing whitespace, dashes, and underscores.
-    """
-    value = str(value)
-    if allow_unicode:
-        value = unicodedata.normalize("NFKC", value)
-    else:
-        value = (
-            unicodedata.normalize("NFKD", value)
-            .encode("ascii", "ignore")
-            .decode("ascii")
-        )
-    value = re.sub(r"[^\w\s-]", "", value.lower())
-    return re.sub(r"[-\s]+", "-", value).strip("-_")
-
-
 # 图片标签转为HTML格式，下载链接添加至image_queue
 def image_tag_handler(matchobj):
 
@@ -177,7 +155,7 @@ for note_item in note_list:
     filename = (
         modify_time.strftime(DATETIME_FORMAT)
         + "_"
-        + slugify(note_item["title"], allow_unicode=True)
+        + sanitize_filename(note_item["title"])
         + ".md"
     )
 
@@ -202,6 +180,7 @@ for _ in range(THREAD_NUM):
 # 创建下载线程
 for _ in range(THREAD_NUM):
     t = threading.Thread(target=downloader)
+    t.daemon = True
     t.start()
     thread_list.append(t)
 
