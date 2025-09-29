@@ -10,11 +10,13 @@ from datetime import datetime
 import requests
 import yaml
 from pathvalidate import sanitize_filename
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from seleniumwire import webdriver
 from seleniumwire.utils import decode
 from tqdm import tqdm
+from webdriver_manager.chrome import ChromeDriverManager
 
 # 工作目录
 if not os.path.exists("downloads"):
@@ -46,7 +48,9 @@ chrome_options.add_argument("--incognito")
 chrome_options.add_argument("--log-level=3")
 
 
-driver = webdriver.Chrome(chrome_options=chrome_options)
+driver = webdriver.Chrome(
+    service=ChromeService(ChromeDriverManager().install()), options=chrome_options
+)
 
 
 driver.get("https://yun.smartisan.com/")
@@ -112,7 +116,6 @@ def downloader():
 
 # 图片标签转为HTML格式，下载链接添加至image_queue
 def image_tag_handler(matchobj):
-
     global subdir
 
     file_name = matchobj.group(4)
@@ -143,7 +146,6 @@ IMAGE_PATTERN = r"<image w=([0-9]+) h=([0-9]+) describe=(.*) name=(.+)>"
 IMAGE_REPL = r'<img src="\\4" alt="\\3" width="\\1" height="\\2">'
 
 for note_item in note_list:
-
     # 解析元数据
     content = note_item.pop("detail")
     modify_time = datetime.fromtimestamp(
@@ -155,7 +157,7 @@ for note_item in note_list:
     filename = (
         modify_time.strftime(DATETIME_FORMAT)
         + "_"
-        + sanitize_filename(note_item["title"])
+        + sanitize_filename(note_item["title"], max_len=15)
         + ".md"
     )
 
