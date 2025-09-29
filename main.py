@@ -48,9 +48,18 @@ chrome_options.add_argument("--incognito")
 chrome_options.add_argument("--log-level=3")
 
 
-driver = webdriver.Chrome(
-    service=ChromeService(ChromeDriverManager().install()), options=chrome_options
-)
+try:
+    driver = webdriver.Chrome(
+        service=ChromeService(ChromeDriverManager().install()), options=chrome_options
+    )
+except Exception as e:
+    print("自动启动chromedriver失败，尝试本地chromedriver", e)
+    try:
+        driver = webdriver.Chrome(chrome_options=chrome_options)
+    except Exception as e:
+        print("本地chromedriver启动失败", e)
+        print("请前往 https://chromedriver.chromium.org/ 下载符合电脑中 Chrome 版本的 ChromeDriver，放在此项目根目录下。")
+        exit(1)
 
 
 driver.get("https://yun.smartisan.com/")
@@ -59,7 +68,7 @@ wait_load_complete(driver)
 driver.find_element(By.CLASS_NAME, "login-btn").click()
 wait_load_complete(driver)
 
-input("输入用户名和密码，点击登录后请回车")
+input("在浏览器中输入用户名和密码，点击登录后请在shell中回车")
 
 cookies = driver.get_cookies()
 user_agent = driver.execute_script("return navigator.userAgent;")
