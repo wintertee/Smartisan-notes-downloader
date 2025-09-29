@@ -133,7 +133,7 @@ def image_tag_handler(matchobj):
     )
     logger.debug("QUEUE SIZE " + str(image_queue.qsize()))
 
-    return '\n<img src="{}" alt="{}" width="{}" height="{}">'.format(
+    return '\n<img src="{}" alt="{}" width="{}" height="{}">\n'.format(
         *matchobj.group(4, 3, 1, 2)
     )
 
