@@ -6,6 +6,7 @@ import re
 import threading
 import time
 from datetime import datetime
+import argparse
 
 import requests
 import yaml
@@ -13,10 +14,13 @@ from pathvalidate import sanitize_filename
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.edge.service import Service as EdgeService
+
 from seleniumwire import webdriver
 from seleniumwire.utils import decode
 from tqdm import tqdm
 from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
 # 工作目录
 if not os.path.exists("downloads"):
@@ -47,18 +51,41 @@ chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--incognito")
 chrome_options.add_argument("--log-level=3")
 
+edge_options = webdriver.EdgeOptions()
+edge_options.add_argument("--incognito")
+edge_options.add_argument("--log-level=3")
 
+# 解析命令行参数，选择浏览器
+parser = argparse.ArgumentParser()
+parser.add_argument("--browser", choices=["chrome", "edge"], default="chrome", help="选择浏览器: chrome 或 edge (默认: chrome)")
+args = parser.parse_args()
+browser = args.browser
+
+# 启动 webdriver：优先使用 webdriver_manager 自动安装驱动，失败时尝试本地驱动
 try:
-    driver = webdriver.Chrome(
-        service=ChromeService(ChromeDriverManager().install()), options=chrome_options
-    )
+    print(f"尝试自动启动 {browser} driver")
+    if browser == "chrome":
+        driver = webdriver.Chrome(
+            service=ChromeService(ChromeDriverManager().install()), options=chrome_options
+        )
+    else:
+        driver = webdriver.Edge(
+            service=EdgeService(EdgeChromiumDriverManager().install()), options=edge_options
+        )
 except Exception as e:
-    print("自动启动chromedriver失败，尝试本地chromedriver", e)
+    print(f"Caught exception: {e}")
+    print(f"自动启动 {browser} driver 失败，尝试本地 {browser} driver")
     try:
-        driver = webdriver.Chrome(chrome_options=chrome_options)
+        if browser == "chrome":
+            driver = webdriver.Chrome(chrome_options=chrome_options)
+        else:
+            driver = webdriver.Edge(edge_options=edge_options)
     except Exception as e:
-        print("本地chromedriver启动失败", e)
-        print("请前往 https://chromedriver.chromium.org/ 下载符合电脑中 Chrome 版本的 ChromeDriver，放在此项目根目录下。")
+        print(f"本地 {browser} driver 启动失败", e)
+        if browser == "chrome":
+            print("请前往 https://chromedriver.chromium.org/ 下载符合电脑中 Chrome 版本的 ChromeDriver，放在此项目根目录下。")
+        else:
+            print("请前往 https://developer.microsoft.com/microsoft-edge/tools/webdriver/ 下载符合电脑中 Edge 版本的驱动，放在此项目根目录下。")
         exit(1)
 
 
