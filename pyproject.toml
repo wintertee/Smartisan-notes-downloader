@@ -15,3 +15,8 @@ dependencies = [
     "tqdm>=4.67.1",
     "webdriver-manager>=4.0.2",
 ]
+
+[[tool.uv.index]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple/"
+default = true
