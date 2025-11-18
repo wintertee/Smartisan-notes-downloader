@@ -6,6 +6,7 @@ import re
 import threading
 import time
 from datetime import datetime
+import argparse
 
 import requests
 import yaml
@@ -13,10 +14,11 @@ from pathvalidate import sanitize_filename
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.edge.service import Service as EdgeService
+
 from seleniumwire import webdriver
 from seleniumwire.utils import decode
 from tqdm import tqdm
-from webdriver_manager.chrome import ChromeDriverManager
 
 # 工作目录
 if not os.path.exists("downloads"):
@@ -47,19 +49,73 @@ chrome_options = webdriver.ChromeOptions()
 chrome_options.add_argument("--incognito")
 chrome_options.add_argument("--log-level=3")
 
+edge_options = webdriver.EdgeOptions()
 
+# for Mac Edge Beta users uncomment the following lines
+# edge_options.binary_location = (
+#     "/Applications/Microsoft Edge Beta.app/Contents/MacOS/Microsoft Edge Beta"
+# )
+edge_options.add_argument("--incognito")
+edge_options.add_argument("--log-level=3")
+
+# 解析命令行参数，选择浏览器
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--browser",
+    choices=["chrome", "edge"],
+    default="chrome",
+    help="选择浏览器: chrome 或 edge (默认: chrome)",
+)
+parser.add_argument(
+    "--driver-path",
+    default=".",
+    help="本地 webdriver 存放目录（用于使用本地 driver），默认为当前目录",
+)
+args = parser.parse_args()
+browser = args.browser
+driver_path = args.driver_path
+
+def find_local_driver_dir(path, names):
+    # path can be a directory or a specific file path
+    # names: candidate filenames to check inside directory
+    if os.path.isfile(path) and os.access(path, os.X_OK):
+        return os.path.abspath(path)
+    # try as directory
+    for name in names:
+        candidate = os.path.join(path, name)
+        if os.path.exists(candidate) and os.access(candidate, os.X_OK):
+            return os.path.abspath(candidate)
+    return None
+
+# 启动 webdriver：优先尝试使用指定目录下的本地 driver（--driver-path），找不到再尝试系统 PATH 或 webdriver_manager
 try:
-    driver = webdriver.Chrome(
-        service=ChromeService(ChromeDriverManager().install()), options=chrome_options
-    )
+    print(f"尝试使用本地 driver（目录：{driver_path}） 启动 {browser}")
+    if browser == "chrome":
+        local = find_local_driver_dir(driver_path, ["chromedriver", "chromedriver.exe", "./chromedriver", "./chromedriver.exe"])
+        if local:
+            print(f"使用本地 Chrome driver: {local}")
+            service = ChromeService(executable_path=local)
+            driver = webdriver.Chrome(service=service, options=chrome_options)
+        else:
+            print(f"本地未找到 Chrome driver，尝试自动安装")
+            driver = webdriver.Chrome(options=chrome_options)
+    else:
+        local = find_local_driver_dir(driver_path, ["msedgedriver", "msedgedriver.exe", "./msedgedriver", "./msedgedriver.exe"])
+        if local:
+            print(f"使用本地 Edge driver: {local}")
+            service = EdgeService(executable_path=local)
+            driver = webdriver.Edge(service=service, options=edge_options)
+        else:
+            print(f"本地未找到 Edge driver，尝试自动安装")
+            driver = webdriver.Edge(options=edge_options)
 except Exception as e:
-    print("自动启动chromedriver失败，尝试本地chromedriver", e)
-    try:
-        driver = webdriver.Chrome(chrome_options=chrome_options)
-    except Exception as e:
-        print("本地chromedriver启动失败", e)
-        print("请前往 https://chromedriver.chromium.org/ 下载符合电脑中 Chrome 版本的 ChromeDriver，放在此项目根目录下。")
-        exit(1)
+    print(f"启动 {browser} driver 时发生异常: {e}")
+    print(f"请确认 --driver-path 指定的目录下存在可执行的驱动，或将驱动放入系统 PATH。")
+    if browser == "chrome":
+        print("可从 https://chromedriver.chromium.org/ 下载对应版本的 chromedriver")
+    else:
+        print("可从 https://developer.microsoft.com/microsoft-edge/tools/webdriver/ 下载对应版本的 msedgedriver")
+    exit(1)
 
 
 driver.get("https://yun.smartisan.com/")
@@ -69,6 +125,8 @@ driver.find_element(By.CLASS_NAME, "login-btn").click()
 wait_load_complete(driver)
 
 input("在浏览器中输入用户名和密码，点击登录后请在shell中回车")
+
+input("请再次确认已完成登录并准备继续")
 
 cookies = driver.get_cookies()
 user_agent = driver.execute_script("return navigator.userAgent;")
