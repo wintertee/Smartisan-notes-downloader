@@ -6,6 +6,7 @@ import queue
 import re
 import threading
 import time
+import urllib.request
 from datetime import datetime
 
 import requests
@@ -18,6 +19,13 @@ from selenium.webdriver.support.ui import WebDriverWait
 from seleniumwire import webdriver
 from seleniumwire.utils import decode
 from tqdm import tqdm
+
+os.environ["SE_PROXY"] = (
+    urllib.request.getproxies().get("https")
+    or urllib.request.getproxies().get("http")
+    or ""
+)
+os.environ["SE_AVOID_BROWSER_DOWNLOAD"] = "true"
 
 # 工作目录
 if not os.path.exists("downloads"):
