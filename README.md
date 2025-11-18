@@ -22,7 +22,7 @@
 - 如果使用测试版本，需要手动指定测试版本浏览器的binary路径
   - 以Edge Beta为例
   ~~~python
-  edge.options=edge_options.binary_location = (
+  edge_options.binary_location = (
     "/Applications/Microsoft Edge Beta.app/Contents/MacOS/Microsoft Edge Beta"
     )
     ~~~
