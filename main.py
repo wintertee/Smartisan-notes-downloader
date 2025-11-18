@@ -1,3 +1,4 @@
+import argparse
 import json
 import logging
 import os
@@ -6,16 +7,14 @@ import re
 import threading
 import time
 from datetime import datetime
-import argparse
 
 import requests
 import yaml
 from pathvalidate import sanitize_filename
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.edge.service import Service as EdgeService
-
+from selenium.webdriver.support.ui import WebDriverWait
 from seleniumwire import webdriver
 from seleniumwire.utils import decode
 from tqdm import tqdm
@@ -75,6 +74,7 @@ args = parser.parse_args()
 browser = args.browser
 driver_path = args.driver_path
 
+
 def find_local_driver_dir(path, names):
     # path can be a directory or a specific file path
     # names: candidate filenames to check inside directory
@@ -87,11 +87,20 @@ def find_local_driver_dir(path, names):
             return os.path.abspath(candidate)
     return None
 
+
 # 启动 webdriver：优先尝试使用指定目录下的本地 driver（--driver-path），找不到再尝试系统 PATH 或 webdriver_manager
 try:
     print(f"尝试使用本地 driver（目录：{driver_path}） 启动 {browser}")
     if browser == "chrome":
-        local = find_local_driver_dir(driver_path, ["chromedriver", "chromedriver.exe", "./chromedriver", "./chromedriver.exe"])
+        local = find_local_driver_dir(
+            driver_path,
+            [
+                "chromedriver",
+                "chromedriver.exe",
+                "./chromedriver",
+                "./chromedriver.exe",
+            ],
+        )
         if local:
             print(f"使用本地 Chrome driver: {local}")
             service = ChromeService(executable_path=local)
@@ -100,7 +109,15 @@ try:
             print(f"本地未找到 Chrome driver，尝试自动安装")
             driver = webdriver.Chrome(options=chrome_options)
     else:
-        local = find_local_driver_dir(driver_path, ["msedgedriver", "msedgedriver.exe", "./msedgedriver", "./msedgedriver.exe"])
+        local = find_local_driver_dir(
+            driver_path,
+            [
+                "msedgedriver",
+                "msedgedriver.exe",
+                "./msedgedriver",
+                "./msedgedriver.exe",
+            ],
+        )
         if local:
             print(f"使用本地 Edge driver: {local}")
             service = EdgeService(executable_path=local)
@@ -114,7 +131,9 @@ except Exception as e:
     if browser == "chrome":
         print("可从 https://chromedriver.chromium.org/ 下载对应版本的 chromedriver")
     else:
-        print("可从 https://developer.microsoft.com/microsoft-edge/tools/webdriver/ 下载对应版本的 msedgedriver")
+        print(
+            "可从 https://developer.microsoft.com/microsoft-edge/tools/webdriver/ 下载对应版本的 msedgedriver"
+        )
     exit(1)
 
 
