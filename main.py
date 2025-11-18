@@ -114,7 +114,7 @@ try:
             service = ChromeService(executable_path=local)
             driver = webdriver.Chrome(service=service, options=chrome_options)
         else:
-            print(f"本地未找到 Chrome driver，尝试自动安装")
+            print("本地未找到 Chrome driver，尝试自动安装")
             driver = webdriver.Chrome(options=chrome_options)
     else:
         local = find_local_driver_dir(
@@ -127,15 +127,15 @@ try:
             ],
         )
         if local:
-            print(f"使用本地 Edge driver: {local}")
+            print("使用本地 Edge driver: {local}")
             service = EdgeService(executable_path=local)
             driver = webdriver.Edge(service=service, options=edge_options)
         else:
-            print(f"本地未找到 Edge driver，尝试自动安装")
+            print("本地未找到 Edge driver，尝试自动安装")
             driver = webdriver.Edge(options=edge_options)
 except Exception as e:
     print(f"启动 {browser} driver 时发生异常: {e}")
-    print(f"请确认 --driver-path 指定的目录下存在可执行的驱动，或将驱动放入系统 PATH。")
+    print("请确认 --driver-path 指定的目录下存在可执行的驱动，或将驱动放入系统 PATH。")
     if browser == "chrome":
         print("可从 https://chromedriver.chromium.org/ 下载对应版本的 chromedriver")
     else:
