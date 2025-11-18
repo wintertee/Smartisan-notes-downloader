@@ -151,9 +151,13 @@ wait_load_complete(driver)
 driver.find_element(By.CLASS_NAME, "login-btn").click()
 wait_load_complete(driver)
 
-input("在浏览器中输入用户名和密码，点击登录后请在shell中回车")
-
-input("请再次确认已完成登录并准备继续")
+print("\n" + "=" * 60)
+print("请在浏览器中完成以下操作：")
+print("1. 输入用户名和密码")
+print("2. 点击登录按钮")
+print("3. 等待登录成功并进入主页面")
+print("=" * 60)
+input("\n完成登录后，请按回车键继续...")
 
 cookies = driver.get_cookies()
 user_agent = driver.execute_script("return navigator.userAgent;")
