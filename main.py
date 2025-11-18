@@ -143,13 +143,8 @@ except Exception as e:
             "可从 https://developer.microsoft.com/microsoft-edge/tools/webdriver/ 下载对应版本的 msedgedriver"
         )
     exit(1)
+print(f"{browser} driver 启动成功")
 
-
-driver.get("https://yun.smartisan.com/")
-wait_load_complete(driver)
-
-driver.find_element(By.CLASS_NAME, "login-btn").click()
-wait_load_complete(driver)
 
 print("\n" + "=" * 60)
 print("请在浏览器中完成以下操作：")
@@ -158,6 +153,14 @@ print("2. 点击登录按钮")
 print("3. 等待登录成功并进入主页面")
 print("=" * 60)
 input("\n完成登录后，请按回车键继续...")
+
+
+driver.get("https://yun.smartisan.com/")
+wait_load_complete(driver)
+
+driver.find_element(By.CLASS_NAME, "login-btn").click()
+wait_load_complete(driver)
+
 
 cookies = driver.get_cookies()
 user_agent = driver.execute_script("return navigator.userAgent;")
