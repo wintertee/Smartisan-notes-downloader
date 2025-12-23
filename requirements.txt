@@ -265,9 +265,9 @@ pyopenssl==25.3.0 \
     --hash=sha256:1fda6fc034d5e3d179d39e59c1895c9faeaf40a79de5fc4cbbfbe0d36f4a77b6 \
     --hash=sha256:c981cb0a3fd84e8602d7afc209522773b94c1c2446a3c710a75b06fe1beae329
     # via selenium-wire
-pyparsing==3.2.5 \
-    --hash=sha256:2df8d5b7b2802ef88e8d016a2eb9c7aeaa923529cd251ed0fe4608275d4105b6 \
-    --hash=sha256:e38a4f02064cf41fe6593d328d0512495ad1f3d8a91c4f73fc401b3079a59a5e
+pyparsing==3.3.0 \
+    --hash=sha256:0de16f2661afbab11fe6645d9472c3b96968d2fffea5b0cc9da88f5be286f039 \
+    --hash=sha256:d15038408e0097d3a01e7e0846731f7f2450c5b6e4a75a52baabd6bbf24585be
     # via selenium-wire
 pysocks==1.7.1 \
     --hash=sha256:2725bd0a9925919b9b51739eea5f9e2bae91e83288108a9ad338b2e3a4435ee5 \
@@ -326,9 +326,9 @@ requests==2.32.5 \
     # via
     #   smartisan-notes-downloader
     #   webdriver-manager
-selenium==4.38.0 \
-    --hash=sha256:c117af6727859d50f622d6d0785b945c5db3e28a45ec12ad85cee2e7cc84fc4c \
-    --hash=sha256:ed47563f188130a6fd486b327ca7ba48c5b11fb900e07d6457befdde320e35fd
+selenium==4.39.0 \
+    --hash=sha256:12f3325f02d43b6c24030fc9602b34a3c6865abbb1db9406641d13d108aa1889 \
+    --hash=sha256:c85f65d5610642ca0f47dae9d5cc117cd9e831f74038bc09fe1af126288200f9
     # via
     #   selenium-wire
     #   smartisan-notes-downloader
@@ -368,9 +368,9 @@ typing-extensions==4.15.0 \
     # via
     #   pyopenssl
     #   selenium
-urllib3==2.5.0 \
-    --hash=sha256:3fc47733c7e419d4bc3f6b3dc2b4f890bb743906a30d56ba4a5bfa4bbff92760 \
-    --hash=sha256:e6b01673c0fa6a13e374b50871808eb3bf7046c4b125b216f6bf1cc604cff0dc
+urllib3==2.6.2 \
+    --hash=sha256:016f9c98bb7e98085cb2b4b17b87d2c702975664e4f060c6532e64d1c1a5e797 \
+    --hash=sha256:ec21cddfe7724fc7cb4ba4bea7aa8e2ef36f607a4bab81aa6ce42a13dc3f03dd
     # via
     #   requests
     #   selenium
@@ -382,9 +382,9 @@ websocket-client==1.9.0 \
     --hash=sha256:9e813624b6eb619999a97dc7958469217c3176312b3a16a4bd1bc7e08a46ec98 \
     --hash=sha256:af248a825037ef591efbf6ed20cc5faa03d3b47b9e5a2230a529eeee1c1fc3ef
     # via selenium
-wsproto==1.3.1 \
-    --hash=sha256:297ce79322989c0d286cc158681641cd18bc7632dfb38cf4054696a89179b993 \
-    --hash=sha256:81529992325c28f0d9b86ca66fc973da96eb80ab53410249ce2e502749c7723c
+wsproto==1.3.2 \
+    --hash=sha256:61eea322cdf56e8cc904bd3ad7573359a242ba65688716b0710a5eb12beab584 \
+    --hash=sha256:b86885dcf294e15204919950f666e06ffc6c7c114ca900b060d6e16293528294
     # via
     #   selenium-wire
     #   trio-websocket
